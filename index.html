@@ -1,0 +1,86 @@
+<!doctype html>
+<html>
+  <head>
+
+    <title>tracking.js - bounding box with camera</title>
+
+    <meta charset="utf-8">
+
+    <script src="node_modules/tracking/build/tracking-min.js"></script>
+    <script src="node_modules/dat.gui/build/dat.gui.min.js"></script>
+
+    <style>
+      .image-template {
+        position: absolute;
+        left: -1000px;
+        top: -1000px;
+      }
+    </style>
+  </head>
+  <body>
+
+    <div class="demo-title"></div>
+
+    <div class="canvas-container">
+      <canvas id="canvas" width="450" height="720"></canvas>
+    </div>
+
+    <script>
+      window.onload = function() {
+        var imageFilenames = ['tarot00.jpg', 'tarot01.jpg', 'tarot02.jpg', 'tarot03.jpg'];
+
+        var populateImages = function() {
+          var container = document.getElementsByClassName('canvas-container')[0];
+
+          for(var i=0; i<imageFilenames.length; i++) {
+            var image = document.createElement('img');
+            image.classList.add('image-template');
+            image.setAttribute('id', imageFilenames[i].replace('.jpg', ''));
+            image.setAttribute('src', 'imgs/' + imageFilenames[i]);
+            container.appendChild(image);
+          }
+        }
+        populateImages();
+
+        const width = 430;
+        const height = 660;
+        const canvas = document.getElementById('canvas');
+        const context = canvas.getContext('2d');
+        const images = document.getElementsByClassName('image-template');
+        const corners = [];
+        const descriptors = [];
+
+        window.descriptorLength = 256;
+        window.matchesShown = 30;
+        window.blurRadius = 3;
+
+        var getCornerDescriptors = function() {
+          tracking.Brief.N = window.descriptorLength;
+
+          for(var i=0; i<images.length; i++) {
+            context.drawImage(images[i], 0, 0, width, height);
+            var imageData = context.getImageData(0, 0, width, height);
+            var gray = tracking.Image.grayscale(tracking.Image.blur(imageData.data, width, height, blurRadius), width, height);
+            var mCorners = tracking.Fast.findCorners(gray, width, height);
+            var mDescriptors = tracking.Brief.getDescriptors(gray, width, mCorners);
+            corners.push(mCorners);
+            descriptors.push(mDescriptors);
+            context.clearRect(0, 0, canvas.width, canvas.height);
+          }
+        }
+        getCornerDescriptors();
+
+        var debugCorners = function(imageIndex) {
+          context.drawImage(images[imageIndex], 0, 0, width, height);
+          for(var i=0; i<corners[imageIndex].length; i+=2) {
+            context.fillStyle = '#f00';
+            context.fillRect(corners[imageIndex][i], corners[imageIndex][i + 1], 3, 3);
+          }
+        }
+        //debugCorners(0);
+
+      }
+    </script>
+
+  </body>
+</html>
