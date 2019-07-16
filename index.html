@@ -30,7 +30,7 @@
   </head>
   <body>
     <div class="canvas-container">
-      <video id="video" width="640" height="360" preload autoplay loop muted controls></video>
+      <video id="video" width="640" height="360" preload autoplay loop muted controls playsinline></video>
       <canvas id="canvas" width="720" height="720"></canvas>
     </div>
     <div class="important-text" id="match-result"></div>
@@ -211,7 +211,7 @@
           console.log("The following error occurred in getUserMedia: " + err.name);
         });
 
-        const trackerTask = tracking.track('#video', tracker, { camera: true });
+        const trackerTask = tracking.track('#video', tracker, { camera: true, fps: 10 });
         trackerTask.stop();
         document.getElementById('canvas').addEventListener('click', function() {
           if(isRunning) {
