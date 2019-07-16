@@ -73,10 +73,10 @@
 
         const templateWidth = 240;
         const templateHeight = 368;
-        const videoWidth = 640;
-        const videoHeight = 360;
-        const canvasWidth = (window.innerWidth > window.innerHeight) ? videoWidth : window.innerWidth;
-        const canvasHeight = (window.innerWidth > window.innerHeight) ? videoHeight : window.innerHeight;
+        const videoWidth = (window.innerWidth > window.innerHeight) ? 640 : 360;
+        const videoHeight = (window.innerWidth > window.innerHeight) ? 360 : 640;
+        const canvasWidth = videoWidth;
+        const canvasHeight = videoHeight;
         const OBJECT_CONFIDENCE_EPSILON = 0.05;
         const MINIMUM_CORNER_MATCH_COUNT = 10;
         const corners = [];
@@ -178,22 +178,15 @@
 
         const tracker = new TarotTracker();
         tracker.on('track', function(event) {
-
-          const heightRatio = canvasHeight / videoHeight;
-          const newVideoWidth = heightRatio * videoWidth;
-
           context.clearRect(0, 0, canvas.width, canvas.height);
-          context.drawImage(video, (canvasWidth - newVideoWidth) / 2, 0,
-                            newVideoWidth, heightRatio * videoHeight);
+          context.drawImage(video, 0, 0, videoWidth, videoHeight);
 
           // Plots matching points on canvas
           for (let i = 0; i < Math.min(64, event.data.match.length); i++) {
             const template = event.data.match[i].keypoint1;
             const frame = event.data.match[i].keypoint2;
-            const newX = heightRatio * frame[0] + (canvasWidth - newVideoWidth) / 2;
-            const newY = heightRatio * frame[1];
             context.fillStyle = '#f00';
-            context.fillRect(newX, newY, 3, 3);
+            context.fillRect(frame[0], frame[1], 3, 3);
           }
 
           if(event.data.match.length > 0) {
