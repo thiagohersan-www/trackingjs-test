@@ -69,6 +69,7 @@
         const templateHeight = 368;
         const videoWidth = 640;
         const videoHeight = 360;
+        const OBJECT_CONFIDENCE_EPSILON = 0.05;
         const corners = [];
         const descriptors = [];
         let isRunning = false;
@@ -139,28 +140,25 @@
               confidenceSum += recMatch[j].confidence;
             }
 
-            if(recMatch.length > 0){
-              matchResults.push({
-                match: recMatch,
-                length: recMatch.length,
-                confidence: confidenceSum/recMatch.length
-              });
-            } else{
-              matchResults.push({
-                match: [],
-                length: 0,
-                confidence: 0
-              });
-            }
+            matchResults.push({
+              index: i,
+              match: recMatch,
+              length: recMatch.length,
+              confidence: (recMatch.length > 0) ? confidenceSum / recMatch.length : 0
+            });
           }
-          console.log(matchResults);
 
-          // TODO: return best match
-          // best match := highest confidence AND also highest number of points
-          // OR
+          matchResults.sort(function(a, b) {
+            return b.confidence - a.confidence;
+          });
+
           // best match := highest confidence larger than (next-highest + ε)
+          const matchedTemplate = ((matchResults[0].confidence - matchResults[1].confidence) > OBJECT_CONFIDENCE_EPSILON) ? matchResults[0] : { match: [] };
+
+          // TODO: best match := highest confidence AND also highest number of points
+
           this.emit('track', {
-            data: matchResults[0].match
+            data: matchedTemplate
           });
         };
 
@@ -171,11 +169,15 @@
           context.drawImage(video, 0, 0, videoWidth, videoHeight);
 
           // Plots matching points on canvas
-          for (let i = 0; i < Math.min(100, event.data.length); i++) {
-            const template = event.data[i].keypoint1;
-            const frame = event.data[i].keypoint2;
+          for (let i = 0; i < Math.min(64, event.data.match.length); i++) {
+            const template = event.data.match[i].keypoint1;
+            const frame = event.data.match[i].keypoint2;
             context.fillStyle = '#f00';
             context.fillRect(frame[0], frame[1], 3, 3);
+          }
+
+          if(event.data.match.length > 0) {
+            console.log(cards[event.data.index]);
           }
         });
 
