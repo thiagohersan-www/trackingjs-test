@@ -23,8 +23,9 @@ before_script:
 
 script:
   - git commit -m "update site"
-  - git push origin :gh-pages
-  - git push -u origin gh-pages
+  - git remote add gh https://$GHTOKEN@github.com/xconf-br-2019/trackerjs-test.git
+  - git push gh :gh-pages
+  - git push -u gh gh-pages
 
 after_script:
   - git checkout -f master
