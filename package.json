@@ -4,7 +4,6 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "dat.gui": "^0.7.6",
     "tracking": "^1.1.3"
   },
   "devDependencies": {},

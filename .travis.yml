@@ -20,7 +20,6 @@ before_script:
   - touch .nojekyll
   - git add index.html imgs .nojekyll
   - git add -f node_modules/tracking/build/tracking-min.js
-  - git add -f node_modules/dat.gui/build/dat.gui.min.js
 
 script:
   - git commit -m "update site"
