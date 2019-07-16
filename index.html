@@ -76,6 +76,7 @@
         const videoWidth = 640;
         const videoHeight = 360;
         const OBJECT_CONFIDENCE_EPSILON = 0.05;
+        const MINIMUM_CORNER_MATCH_COUNT = 10;
         const corners = [];
         const descriptors = [];
         let isRunning = false;
@@ -161,8 +162,10 @@
             return b.confidence - a.confidence;
           });
 
-          // best match := highest confidence larger than (next-highest + ε)
-          const matchedTemplate = ((matchResults[0].confidence - matchResults[1].confidence) > OBJECT_CONFIDENCE_EPSILON) ? matchResults[0] : { match: [] };
+          // good match := highest confidence larger than (next-highest + ε) && more than 10 matches
+          const goodMatch = ((matchResults[0].confidence - matchResults[1].confidence) > OBJECT_CONFIDENCE_EPSILON) && (matchResults[0].length > MINIMUM_CORNER_MATCH_COUNT);
+
+          const matchedTemplate = goodMatch ? matchResults[0] : { match: [] };
 
           // TODO: best match := highest confidence AND also highest number of points
 
