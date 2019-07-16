@@ -5,6 +5,9 @@
     <title>tracking.js - match patterns</title>
 
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,800&display=swap" rel="stylesheet">
 
     <script src="node_modules/tracking/build/tracking-min.js"></script>
     <script src="node_modules/dat.gui/build/dat.gui.min.js"></script>
@@ -19,6 +22,11 @@
         position: absolute;
         top: -1000px;
       }
+      .important-text {
+        font-size: 16px;
+        font-family: 'Open Sans', sans-serif;
+        font-weight: 800;
+      }
     </style>
   </head>
   <body>
@@ -26,6 +34,7 @@
       <video id="video" width="640" height="360" preload autoplay loop muted controls></video>
       <canvas id="canvas" width="720" height="720"></canvas>
     </div>
+    <div class="important-text" id="match-result"></div>
 
     <script>
       window.onload = function() {
@@ -65,6 +74,8 @@
         const context = canvas.getContext('2d');
         const images = document.getElementsByClassName('image-template');
         const video = document.getElementById('video');
+        const matchResult = document.getElementById('match-result');
+
         const templateWidth = 240;
         const templateHeight = 368;
         const videoWidth = 640;
@@ -77,6 +88,7 @@
         window.descriptorLength = 256;
         window.blurRadius = 1.01;
 
+        canvas.setAttribute("height", videoHeight + "px");
         var getCornerDescriptors = function() {
           tracking.Brief.N = window.descriptorLength;
 
@@ -178,12 +190,14 @@
 
           if(event.data.match.length > 0) {
             console.log(cards[event.data.index]);
+            matchResult.innerHTML = cards[event.data.index].profile;
           }
         });
 
         const vidParams = {
           width: videoWidth,
-          height: videoHeight
+          height: videoHeight,
+          facingMode: 'environment'
         };
 
         navigator.getUserMedia({video: vidParams}, function(stream) {
