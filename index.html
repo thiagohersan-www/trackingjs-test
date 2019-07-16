@@ -9,7 +9,7 @@
 
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,800&display=swap" rel="stylesheet">
 
-    <script src="node_modules/tracking/build/tracking-min.js"></script>
+    <script src="js/tracking.js"></script>
 
     <style>
       .image-template {
@@ -37,12 +37,6 @@
 
     <script>
       window.onload = function() {
-        /*
-        navigator.getUserMedia = navigator.getUserMedia ||
-          navigator.webkitGetUserMedia ||
-          navigator.mozGetUserMedia;
-        */
-
         const cards = [
           { imageFile: 'tarot00.jpg', profile: 'scandal'},
           { imageFile: 'tarot01.jpg', profile: 'smash hit'},
@@ -89,7 +83,9 @@
         window.descriptorLength = 256;
         window.blurRadius = 1.01;
 
+        canvas.setAttribute("width", videoWidth + "px");
         canvas.setAttribute("height", videoHeight + "px");
+
         var getCornerDescriptors = function() {
           tracking.Brief.N = window.descriptorLength;
 
