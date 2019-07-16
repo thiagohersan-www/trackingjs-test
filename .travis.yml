@@ -1,0 +1,31 @@
+sudo: required
+
+language: node_js
+node_js:
+  - 10
+
+branches:
+  only:
+    - master
+
+notifications:
+  email: false
+
+before_script:
+  - npm install
+  - git config --local user.name "$USER_NAME"
+  - git config --local user.email "$USER_EMAIL"
+  - git checkout --orphan gh-pages
+  - git rm --cached -r .
+  - git add index.html imgs 
+  - git add node_modules/tracking/build/tracking-min.js
+  - git add node_modules/dat.gui/build/dat.gui.min.js
+
+script:
+  - git commit -m "update site"
+  - git push origin :gh-pages
+  - git push -u origin gh-pages
+
+after_script:
+  - git checkout -f master
+  - git branch -D gh-pages
