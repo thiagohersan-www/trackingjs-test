@@ -17,7 +17,8 @@ before_script:
   - git config --local user.email "$USER_EMAIL"
   - git checkout --orphan gh-pages
   - git rm --cached -r .
-  - git add index.html imgs 
+  - touch .nojekyll
+  - git add index.html imgs .nojekyll
   - git add -f node_modules/tracking/build/tracking-min.js
   - git add -f node_modules/dat.gui/build/dat.gui.min.js
 
