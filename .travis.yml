@@ -18,8 +18,8 @@ before_script:
   - git checkout --orphan gh-pages
   - git rm --cached -r .
   - git add index.html imgs 
-  - git add node_modules/tracking/build/tracking-min.js
-  - git add node_modules/dat.gui/build/dat.gui.min.js
+  - git add -f node_modules/tracking/build/tracking-min.js
+  - git add -f node_modules/dat.gui/build/dat.gui.min.js
 
 script:
   - git commit -m "update site"
