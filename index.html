@@ -33,16 +33,29 @@
           navigator.webkitGetUserMedia ||
           navigator.mozGetUserMedia;
 
-        const imageFilenames = ['tarot00.jpg', 'tarot01.jpg', 'tarot02.jpg', 'tarot03.jpg'];
+        const cards = [
+          { imageFile: 'tarot00.jpg', profile: 'scandal'},
+          { imageFile: 'tarot01.jpg', profile: 'smash hit'},
+          { imageFile: 'tarot02.jpg', profile: 'mother nature'},
+          { imageFile: 'tarot03.jpg', profile: 'radio star'},
+          { imageFile: 'tarot04.jpg', profile: 'siren'},
+          { imageFile: 'tarot05.jpg', profile: 'bffs'},
+          { imageFile: 'tarot06.jpg', profile: 'super fan'},
+          { imageFile: 'tarot07.jpg', profile: 'big bad wolf'},
+          { imageFile: 'tarot08.jpg', profile: 'forgotten'},
+          { imageFile: 'tarot09.jpg', profile: 'service dog'},
+          { imageFile: 'tarot10.jpg', profile: 'catalyst'},
+          { imageFile: 'tarot11.jpg', profile: 'backstabber'}
+        ];
 
         var populateImages = function() {
           const container = document.getElementsByClassName('canvas-container')[0];
 
-          for(let i=0; i<imageFilenames.length; i++) {
+          for(let i=0; i<cards.length; i++) {
             const image = document.createElement('img');
             image.classList.add('image-template');
-            image.setAttribute('id', imageFilenames[i].replace('.jpg', ''));
-            image.setAttribute('src', 'imgs/' + imageFilenames[i]);
+            image.setAttribute('id', cards[i].imageFile.replace('.jpg', ''));
+            image.setAttribute('src', 'imgs/' + cards[i].imageFile);
             container.appendChild(image);
           }
         }
