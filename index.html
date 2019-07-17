@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,800&display=swap" rel="stylesheet">
 
     <script src="js/tracking.js"></script>
+    <script src="js/adapter.js"></script>
 
     <style>
       .image-template {
@@ -30,8 +31,8 @@
   </head>
   <body>
     <div class="canvas-container">
-      <video id="video" width="640" height="360" preload autoplay loop muted controls playsinline></video>
-      <canvas id="canvas" width="720" height="720"></canvas>
+      <video id="video" preload autoplay loop muted controls playsinline></video>
+      <canvas id="canvas"></canvas>
     </div>
     <div class="important-text" id="match-result"></div>
 
@@ -73,14 +74,14 @@
 
         const templateWidth = 240;
         const templateHeight = 368;
-        const videoWidth = (window.innerWidth > window.innerHeight) ? 640 : 360;
-        const videoHeight = (window.innerWidth > window.innerHeight) ? 360 : 640;
+        const videoWidth = 640;
+        const videoHeight = 360;
         const canvasWidth = videoWidth;
         const canvasHeight = videoHeight;
         const OBJECT_CONFIDENCE_EPSILON = 0.05;
         const MINIMUM_CORNER_MATCH_COUNT = 10;
-        const corners = [];
-        const descriptors = [];
+        const templateCorners = [];
+        const templateDescriptors = [];
         let isRunning = false;
 
         window.descriptorLength = 256;
@@ -88,31 +89,35 @@
 
         canvas.setAttribute("width", canvasWidth + "px");
         canvas.setAttribute("height", canvasHeight + "px");
+        video.setAttribute("width", videoWidth + "px");
+        video.setAttribute("height", videoHeight + "px");
 
-        var getCornerDescriptors = function() {
+        var getTemplateDescriptors = function() {
           tracking.Brief.N = window.descriptorLength;
 
           for(let i=0; i<images.length; i++) {
             context.drawImage(images[i], 0, 0, templateWidth, templateHeight);
             const imageData = context.getImageData(0, 0, templateWidth, templateHeight);
-            const gray = tracking.Image.grayscale(tracking.Image.blur(imageData.data, templateWidth, templateHeight, window.blurRadius), templateWidth, templateHeight);
-            const mCorners = tracking.Fast.findCorners(gray, templateWidth, templateHeight);
-            const mDescriptors = tracking.Brief.getDescriptors(gray, templateWidth, mCorners);
-            corners.push(mCorners);
-            descriptors.push(mDescriptors);
+            const tBlur = tracking.Image.blur(imageData.data, templateWidth, templateHeight, window.blurRadius);
+            const tGray = tracking.Image.grayscale(tBlur, templateWidth, templateHeight);
+            const tCorners = tracking.Fast.findCorners(tGray, templateWidth, templateHeight);
+            const tDescriptors = tracking.Brief.getDescriptors(tGray, templateWidth, tCorners);
+
+            templateCorners.push(tCorners);
+            templateDescriptors.push(tDescriptors);
             context.clearRect(0, 0, canvas.width, canvas.height);
           }
         }
-        getCornerDescriptors();
+        getTemplateDescriptors();
 
         var debugCorners = function() {
           for(let j=0; j<images.length; j++) {
             context.drawImage(images[j],
                               j*templateWidth, 0, templateWidth, templateHeight);
-            for(let i=0; i<corners[j].length; i+=2) {
+            for(let i=0; i<templateCorners[j].length; i+=2) {
               context.fillStyle = '#f00';
-              context.fillRect(corners[j][i] + j*templateWidth,
-                               corners[j][i + 1], 3, 3);
+              context.fillRect(templateCorners[j][i] + j*templateWidth,
+                               templateCorners[j][i + 1], 3, 3);
             }
           }
         }
@@ -123,15 +128,7 @@
         }
         tracking.inherits(TarotTracker, tracking.Tracker);
 
-        TarotTracker.prototype.templateDescriptors_ = null;
-        TarotTracker.prototype.templateKeypoints_ = null;
         TarotTracker.prototype.fastThreshold = 80;
-        TarotTracker.prototype.blur = window.blurRadius;
-
-        TarotTracker.prototype.setTemplate = function() {
-          this.templateKeypoints_ = corners[0];
-          this.templateDescriptors_ = descriptors[0];
-        };
 
         TarotTracker.prototype.track = function(pixels, mWidth, mHeight) {
           const frameBlur = tracking.Image.blur(pixels, mWidth, mHeight, window.blurRadius);
@@ -140,8 +137,8 @@
           const frameDescriptors = tracking.Brief.getDescriptors(frameGrayscale, mWidth, frameKeypoints);
 
           const matchResults = [];
-          for(let i=0; i<descriptors.length; i++) {
-            const recMatch = tracking.Brief.reciprocalMatch(corners[i], descriptors[i],
+          for(let i=0; i<templateDescriptors.length; i++) {
+            const recMatch = tracking.Brief.reciprocalMatch(templateCorners[i], templateDescriptors[i],
                                                             frameKeypoints, frameDescriptors);
             recMatch.sort(function(a, b) {
               return b.confidence - a.confidence;
@@ -167,12 +164,8 @@
           // good match := highest confidence larger than (next-highest + ε) && more than 10 matches
           const goodMatch = ((matchResults[0].confidence - matchResults[1].confidence) > OBJECT_CONFIDENCE_EPSILON) && (matchResults[0].length > MINIMUM_CORNER_MATCH_COUNT);
 
-          const matchedTemplate = goodMatch ? matchResults[0] : { match: [] };
-
-          // TODO: best match := highest confidence AND also highest number of points
-
           this.emit('track', {
-            data: matchedTemplate
+            data: goodMatch ? matchResults[0] : { match: [] }
           });
         };
 
@@ -183,7 +176,6 @@
 
           // Plots matching points on canvas
           for (let i = 0; i < Math.min(64, event.data.match.length); i++) {
-            const template = event.data.match[i].keypoint1;
             const frame = event.data.match[i].keypoint2;
             context.fillStyle = '#f00';
             context.fillRect(frame[0], frame[1], 3, 3);
@@ -214,12 +206,12 @@
 
         const trackerTask = tracking.track('#video', tracker, { camera: true, fps: 10 });
         trackerTask.stop();
+
         document.getElementById('canvas').addEventListener('click', function() {
           if(isRunning) {
             trackerTask.stop();
             isRunning = false;
           } else {
-            tracker.setTemplate();
             trackerTask.run();
             isRunning = true;
           }
