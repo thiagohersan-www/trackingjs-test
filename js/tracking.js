@@ -249,8 +249,8 @@
     var resizeCanvas_ = function() {
       width = element.offsetWidth;
       height = element.offsetHeight;
-      canvas.width = 0.666 * width;
-      canvas.height = 0.666 * height;
+      canvas.width = 0.5 * width;
+      canvas.height = 0.5 * height;
     };
     resizeCanvas_();
     element.addEventListener('resize', resizeCanvas_);

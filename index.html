@@ -35,6 +35,7 @@
       <canvas id="canvas"></canvas>
     </div>
     <div class="important-text" id="match-result"></div>
+    <div class="important-text" id="camera-canvas-info"></div>
 
     <script>
       window.onload = function() {
@@ -71,6 +72,7 @@
         const images = document.getElementsByClassName('image-template');
         const video = document.getElementById('video');
         const matchResult = document.getElementById('match-result');
+        const camInfoElement = document.getElementById('camera-canvas-info');
 
         const templateWidth = 240;
         const templateHeight = 368;
@@ -105,6 +107,7 @@
           canvas.setAttribute("height", canvasHeight + "px");
           video.setAttribute("width", videoWidth + "px");
           video.setAttribute("height", videoHeight + "px");
+          camInfoElement.innerHTML = `cam:${videoWidth}x${videoHeight} can:${canvasWidth}X${canvasHeight}`;
 
           mVideo.onloadedmetadata = function(e) {
             mVideo.play();
