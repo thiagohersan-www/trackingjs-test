@@ -1,0 +1,20 @@
+{
+  "name": "trackerjs-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "http-server": "^0.11.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "http-server -S -C ./localhost.pem -K ./localhost-key.pem",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "thiagohersan-hub:xconf-br-2019/trackerjs-test.git"
+  },
+  "author": "",
+  "license": "ISC"
+}
