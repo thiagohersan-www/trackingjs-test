@@ -52,6 +52,8 @@ function getStream() {
 function gotStream(stream) {
   window.stream = stream; // make stream available to console
   videoElement.srcObject = stream;
+  let mCameraSettings = stream.getVideoTracks()[0].getSettings();
+  document.getElementById('camera-settings').innerHTML = `cam: ${mCameraSettings.width} x ${mCameraSettings.height}`;
 }
 
 function handleError(error) {
