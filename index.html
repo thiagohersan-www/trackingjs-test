@@ -74,10 +74,6 @@
 
         const templateWidth = 240;
         const templateHeight = 368;
-        const videoWidth = 640;
-        const videoHeight = 360;
-        const canvasWidth = videoWidth;
-        const canvasHeight = videoHeight;
         const OBJECT_CONFIDENCE_EPSILON = 0.05;
         const MINIMUM_CORNER_MATCH_COUNT = 10;
         const templateCorners = [];
@@ -87,10 +83,38 @@
         window.descriptorLength = 256;
         window.blurRadius = 1.01;
 
-        canvas.setAttribute("width", canvasWidth + "px");
-        canvas.setAttribute("height", canvasHeight + "px");
-        video.setAttribute("width", videoWidth + "px");
-        video.setAttribute("height", videoHeight + "px");
+        let videoWidth = 640;
+        let videoHeight = 360;
+        let canvasWidth = videoWidth;
+        let canvasHeight = videoHeight;
+
+        var setupCameraCapture = function() {
+          const vidParams = { facingMode: 'environment' };
+
+        navigator.getUserMedia({video: vidParams}, function(stream) {
+          let mVideo = document.getElementById('video');
+          mVideo.srcObject = stream;
+
+          let mCameraSettings = stream.getVideoTracks()[0].getSettings();
+
+          videoWidth = mCameraSettings.width;
+          videoHeight = mCameraSettings.height;
+          canvasWidth = videoWidth;
+          canvasHeight = videoHeight;
+          canvas.setAttribute("width", canvasWidth + "px");
+          canvas.setAttribute("height", canvasHeight + "px");
+          video.setAttribute("width", videoWidth + "px");
+          video.setAttribute("height", videoHeight + "px");
+
+          mVideo.onloadedmetadata = function(e) {
+            mVideo.play();
+          };
+        }, function(err) {
+          alert(err.name);
+          console.log("The following error occurred in getUserMedia: " + err.name);
+        });
+        }
+        setupCameraCapture();
 
         var getTemplateDescriptors = function() {
           tracking.Brief.N = window.descriptorLength;
@@ -187,22 +211,6 @@
           }
         });
 
-        const vidParams = {
-          //width: videoWidth,
-          //height: videoHeight,
-          facingMode: 'environment'
-        };
-
-        navigator.getUserMedia({video: vidParams}, function(stream) {
-          var mVideo = document.getElementById('video');
-          mVideo.srcObject = stream;
-          mVideo.onloadedmetadata = function(e) {
-            mVideo.play();
-          };
-        }, function(err) {
-          alert(err.name);
-          console.log("The following error occurred in getUserMedia: " + err.name);
-        });
 
         const trackerTask = tracking.track('#video', tracker, { camera: true, fps: 10 });
         trackerTask.stop();
