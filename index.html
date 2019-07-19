@@ -75,12 +75,13 @@
         const templateWidth = 240;
         const templateHeight = 368;
         const OBJECT_CONFIDENCE_EPSILON = 0.04;
-        const MINIMUM_CORNER_MATCH_COUNT = 10;
+        const MINIMUM_CORNER_MATCH_COUNT = 6;
         const templateCorners = [];
         const templateDescriptors = [];
 
-        window.descriptorLength = 256;
-        window.blurRadius = 1.01;
+        window.descriptorLength = 512;
+        window.blurRadius = 2.01;
+        window.trackerThreshold = 80;
 
         let videoWidth = 640;
         let videoHeight = 360;
@@ -150,10 +151,10 @@
         }
         tracking.inherits(TarotTracker, tracking.Tracker);
 
-        TarotTracker.prototype.fastThreshold = 80;
+        TarotTracker.prototype.fastThreshold = window.trackerThreshold;
 
         TarotTracker.prototype.track = function(pixels, mWidth, mHeight) {
-          const frameBlur = tracking.Image.blur(pixels, mWidth, mHeight, window.blurRadius);
+          const frameBlur = tracking.Image.blur(pixels, mWidth, mHeight, window.blurRadius / 2.0);
           const frameGrayscale = tracking.Image.grayscale(frameBlur, mWidth, mHeight);
           const frameKeypoints = tracking.Fast.findCorners(frameGrayscale, mWidth, mHeight, this.fastThreshold);
           const frameDescriptors = tracking.Brief.getDescriptors(frameGrayscale, mWidth, frameKeypoints);
