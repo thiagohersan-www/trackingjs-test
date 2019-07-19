@@ -35,7 +35,6 @@
       <canvas id="canvas"></canvas>
     </div>
     <div class="important-text" id="match-result"></div>
-    <div class="important-text" id="camera-canvas-info"></div>
 
     <script>
       window.onload = function() {
@@ -72,15 +71,13 @@
         const images = document.getElementsByClassName('image-template');
         const video = document.getElementById('video');
         const matchResult = document.getElementById('match-result');
-        const camInfoElement = document.getElementById('camera-canvas-info');
 
         const templateWidth = 240;
         const templateHeight = 368;
-        const OBJECT_CONFIDENCE_EPSILON = 0.05;
+        const OBJECT_CONFIDENCE_EPSILON = 0.04;
         const MINIMUM_CORNER_MATCH_COUNT = 10;
         const templateCorners = [];
         const templateDescriptors = [];
-        let isRunning = false;
 
         window.descriptorLength = 256;
         window.blurRadius = 1.01;
@@ -97,20 +94,18 @@
           let mVideo = document.getElementById('video');
           mVideo.srcObject = stream;
 
-          let mCameraSettings = stream.getVideoTracks()[0].getSettings();
-
-          videoWidth = mCameraSettings.width;
-          videoHeight = mCameraSettings.height;
-          canvasWidth = videoWidth;
-          canvasHeight = videoHeight;
-          canvas.setAttribute("width", canvasWidth + "px");
-          canvas.setAttribute("height", canvasHeight + "px");
-          video.setAttribute("width", videoWidth + "px");
-          video.setAttribute("height", videoHeight + "px");
-          camInfoElement.innerHTML = `cam:${videoWidth}x${videoHeight} can:${canvasWidth}X${canvasHeight}`;
-
           mVideo.onloadedmetadata = function(e) {
             mVideo.play();
+            let mCameraSettings = stream.getVideoTracks()[0].getSettings();
+
+            videoWidth = mVideo.videoWidth;
+            videoHeight = mVideo.videoHeight;
+            canvasWidth = videoWidth;
+            canvasHeight = videoHeight;
+            canvas.setAttribute("width", canvasWidth + "px");
+            canvas.setAttribute("height", canvasHeight + "px");
+            video.setAttribute("width", videoWidth + "px");
+            video.setAttribute("height", videoHeight + "px");
           };
         }, function(err) {
           alert(err.name);
@@ -211,20 +206,22 @@
           if(event.data.match.length > 0) {
             console.log(cards[event.data.index]);
             matchResult.innerHTML = cards[event.data.index].profile;
+
+            setTimeout(function() {
+              trackerTask.stop();
+              setTimeout(function() { trackerTask.run(); }, 200);
+            }, 100)
           }
         });
 
-
-        const trackerTask = tracking.track('#video', tracker, { camera: true, fps: 10 });
+        let trackerTask = tracking.track('#video', tracker, { camera: true, fps: 10 });
         trackerTask.stop();
 
         document.getElementById('canvas').addEventListener('click', function() {
-          if(isRunning) {
+          if(trackerTask.inRunning()) {
             trackerTask.stop();
-            isRunning = false;
           } else {
             trackerTask.run();
-            isRunning = true;
           }
         });
       }
