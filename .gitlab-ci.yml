@@ -4,6 +4,7 @@ pages:
   script:
   - mkdir public
   - cp -r index.html imgs js public
+  - ls -la public
   - echo "done"
   artifacts:
     paths:
