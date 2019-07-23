@@ -3,6 +3,7 @@ pages:
   script:
     - echo "done"
   artifacts:
-    paths: ./
+    paths:
+    - .
   only:
     - master
