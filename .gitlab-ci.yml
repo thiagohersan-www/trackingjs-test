@@ -1,9 +1,11 @@
 pages:
   stage: deploy
   script:
+    - mkdir public
+    - cp -r index.html imgs js public
     - echo "done"
   artifacts:
     paths:
-    - .
+    - public
   only:
     - master
