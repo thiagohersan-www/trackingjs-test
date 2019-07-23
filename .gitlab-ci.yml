@@ -2,11 +2,11 @@ pages:
   stage: deploy
   image: alpine:latest
   script:
-    - mkdir public
-    - cp -r index.html imgs js public
-    - echo "done"
+  - mkdir public
+  - cp -r index.html imgs js public
+  - echo "done"
   artifacts:
     paths:
     - public
   only:
-    - master
+  - master
