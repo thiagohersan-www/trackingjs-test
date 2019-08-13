@@ -32,7 +32,7 @@
   <body>
     <div class="canvas-container">
       <video id="video" preload autoplay loop muted controls playsinline></video>
-      <canvas id="canvas"></canvas>
+      <canvas id="canvas" width="800px" height="800px"></canvas>
     </div>
     <div class="important-text" id="match-result"></div>
 
@@ -91,27 +91,27 @@
         var setupCameraCapture = function() {
           const vidParams = { facingMode: 'environment' };
 
-        navigator.getUserMedia({video: vidParams}, function(stream) {
-          let mVideo = document.getElementById('video');
-          mVideo.srcObject = stream;
+          navigator.getUserMedia({video: vidParams}, function(stream) {
+            let mVideo = document.getElementById('video');
+            mVideo.srcObject = stream;
 
-          mVideo.onloadedmetadata = function(e) {
-            mVideo.play();
-            let mCameraSettings = stream.getVideoTracks()[0].getSettings();
+            mVideo.onloadedmetadata = function(e) {
+              mVideo.play();
+              let mCameraSettings = stream.getVideoTracks()[0].getSettings();
 
-            videoWidth = mVideo.videoWidth;
-            videoHeight = mVideo.videoHeight;
-            canvasWidth = videoWidth;
-            canvasHeight = videoHeight;
-            canvas.setAttribute("width", canvasWidth + "px");
-            canvas.setAttribute("height", canvasHeight + "px");
-            video.setAttribute("width", videoWidth + "px");
-            video.setAttribute("height", videoHeight + "px");
-          };
-        }, function(err) {
-          alert(err.name);
-          console.log("The following error occurred in getUserMedia: " + err.name);
-        });
+              videoWidth = mVideo.videoWidth;
+              videoHeight = mVideo.videoHeight;
+              canvasWidth = videoWidth;
+              canvasHeight = videoHeight;
+              canvas.setAttribute("width", canvasWidth + "px");
+              canvas.setAttribute("height", canvasHeight + "px");
+              video.setAttribute("width", videoWidth + "px");
+              video.setAttribute("height", videoHeight + "px");
+            };
+          }, function(err) {
+            alert(err.name);
+            console.log("The following error occurred in getUserMedia: " + err.name);
+          });
         }
         setupCameraCapture();
 
